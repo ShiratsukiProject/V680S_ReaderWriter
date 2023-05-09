@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using System.Data;
-using System.Windows.Forms;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace V680S_Reader_Writer.Class
 {
@@ -33,6 +31,8 @@ namespace V680S_Reader_Writer.Class
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} メッセージの表示中にエラーが発生しました。");
 
                 // 異常表示
@@ -41,6 +41,8 @@ namespace V680S_Reader_Writer.Class
                 ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} メッセージの表示を中断します。");
+
+                #endregion
 
             }
 
@@ -171,6 +173,8 @@ namespace V680S_Reader_Writer.Class
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} XMLファイルの読み込み中にエラーが発生しました。");
 
                 // 異常表示
@@ -179,6 +183,8 @@ namespace V680S_Reader_Writer.Class
                 ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} メッセージの表示を中断します。");
+
+                #endregion
 
             }
 
@@ -208,6 +214,8 @@ namespace V680S_Reader_Writer.Class
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} XMLファイルの書込み中にエラーが発生しました。");
 
                 // 異常表示
@@ -216,6 +224,8 @@ namespace V680S_Reader_Writer.Class
                 ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} XMLファイルの書込みを中断します。");
+
+                #endregion
 
             }
 
@@ -256,6 +266,8 @@ namespace V680S_Reader_Writer.Class
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 修了確認処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -264,6 +276,8 @@ namespace V680S_Reader_Writer.Class
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 修了確認処理を中断します。");
+
+                #endregion
 
             }
 
@@ -294,6 +308,8 @@ namespace V680S_Reader_Writer.Class
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} CSV出力を中にエラーが発生しました。");
 
                 // 異常表示
@@ -302,6 +318,8 @@ namespace V680S_Reader_Writer.Class
                 ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} CSV出力を中断します。");
+
+                #endregion
 
             }
 

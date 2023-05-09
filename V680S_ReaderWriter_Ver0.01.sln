@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V680S_ReaderWriter_Ver0.01", "V680S_Reader_Writer\V680S_ReaderWriter_Ver0.01.csproj", "{710FDA97-5B70-40CB-B5C2-B52BD2A6E6DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V680S_ReaderWriter_Ver0.02", "V680S_Reader_Writer\V680S_ReaderWriter_Ver0.02.csproj", "{710FDA97-5B70-40CB-B5C2-B52BD2A6E6DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +18,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {913EFEDE-2AD6-4C99-8309-E16EAA4E6DF6}
 	EndGlobalSection
 EndGlobal

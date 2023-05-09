@@ -47,6 +47,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} フォームの呼び出し処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -55,6 +57,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} フォームの呼び出し処理を中断します。");
+
+                #endregion
 
             }
 
@@ -86,6 +90,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} フォームの終了確認処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -94,6 +100,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} フォームの終了確認処理を中断します。");
+
+                #endregion
 
             }
 
@@ -151,6 +159,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 動作設定の保存中にエラーが発生しました。");
 
                 // 異常表示
@@ -159,6 +169,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 動作設定の保存を中断します。");
+
+                #endregion
 
             }
 
@@ -205,6 +217,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} ダイアログの初期化処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -213,6 +227,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} ダイアログの初期化処理を中断します。");
+
+                #endregion
 
             }
 

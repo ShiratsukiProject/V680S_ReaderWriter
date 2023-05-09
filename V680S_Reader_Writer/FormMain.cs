@@ -1,18 +1,11 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Net.Sockets;
-using System.Net;
-using V680S_Reader_Writer.Class;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Text;
+using System.Windows.Forms;
+using V680S_Reader_Writer.Class;
 
 namespace V680S_Reader_Writer
 {
@@ -97,8 +90,6 @@ namespace V680S_Reader_Writer
 
         #endregion
 
-        #region"公開メソッド"
-
         #region"イベント"
 
         #region"フォーム"
@@ -116,20 +107,29 @@ namespace V680S_Reader_Writer
             {
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} フォームの呼び出しを検知しました。");
 
+                #region"宣言"
+
                 bool isError = false;
+
+                string formTitle = "";
+
+                FileVersionInfo verInfo = null;
+
+                #endregion
 
                 isError = Cls_CommonFunctions.ReadXml();
 
                 if (isError)
                 {
+                    //xmlが異常なら終了
                     Close();
 
                 }
 
                 // バージョン番号を取得
-                FileVersionInfo verInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+                verInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
 
-                string formTitle = this.Text;
+                formTitle = this.Text;
 
                 if (verInfo.FilePrivatePart == 0)
                 {
@@ -148,6 +148,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} フォームの呼び出し処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -157,8 +159,9 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} フォームの呼び出しを中断します。");
 
-            }
+                #endregion
 
+            }
         }
 
         #endregion
@@ -183,10 +186,11 @@ namespace V680S_Reader_Writer
                     e.Cancel = true;
 
                 }
-
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 終了処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -196,8 +200,9 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 終了処理を中断します。");
 
-            }
+                #endregion
 
+            }
         }
 
         #endregion
@@ -224,6 +229,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 終了処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -233,9 +240,9 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 終了処理中を中断します。");
 
+                #endregion
+
             }
-
-
         }
 
         #endregion
@@ -249,7 +256,11 @@ namespace V680S_Reader_Writer
         /// <param name="e">イベントハンドラ</param>
         private void MenuItem_Setting_Click(object sender, EventArgs e)
         {
+            #region"宣言"
+
             bool isError = false;
+
+            #endregion
 
             try
             {
@@ -270,10 +281,11 @@ namespace V680S_Reader_Writer
 
                     }
                 }
-
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 動作設定中にエラーが発生しました。");
 
                 // 異常表示
@@ -283,8 +295,9 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 動作設定を中断します。");
 
-            }
+                #endregion
 
+            }
         }
 
         #endregion
@@ -293,53 +306,48 @@ namespace V680S_Reader_Writer
 
         #region"ボタン"
 
-        #region"RFID読取り"
+        #region"RFID読取りタブ"
+
+        #region"RFID読取りボタン"
 
         /// <summary>
-        /// RFID読取りボタンのクリックイベント
+        /// RFDI読取りタブ　RFID読取りボタンのクリックイベント
         /// </summary>
         /// <param name="sender">センダー</param>
         /// <param name="e">イベント</param>
         private void btn_Read_Click(object sender, EventArgs e)
         {
+            #region"宣言"
+
             decimal readStartAddress = nud_ReadStartAddress.Value;
             decimal readDataLength = nud_ReadDataLength.Value;
 
             string serverAddress = txb_ReadIPAddress.Text;
+            byte[][] readData = null;
+
+            #endregion
 
             try
             {
-                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りボタンがクリックされました。");
+                readData = RFIDReadReady(readStartAddress, readDataLength, serverAddress);
 
+                if (readData != null)
+                {
+                    // 正常完了なら読取りデータを表示
+                    RFIDDataView(readStartAddress, readDataLength, readData);
 
-                //string msbText = "RFIDからデータを読み取ります。\r\nよろしいですか？";
-                //string caption = "確認";
+                }
+                else
+                {
+                    MessageBox.Show("IDの読取りに失敗しました。");
 
-                //MessageBoxButtons msbBtn = MessageBoxButtons.OKCancel;
-                //MessageBoxIcon msbIcon = MessageBoxIcon.Question;
-                //MessageBoxDefaultButton msbDefBtn = MessageBoxDefaultButton.Button2;
-
-                //DialogResult dialogResult = MessageBox.Show(this, msbText, caption, msbBtn, msbIcon, msbDefBtn);
-
-                //if (dialogResult == DialogResult.OK)
-                //{
-                //    // グリッド初期化
-                //    DGV_ReadData.Rows.Clear();
-
-                //    RFIDReadReady(readStartAddress, readDataLength, serverAddress);
-
-                //}
-
-                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} グリッドを初期化します。");
-                // グリッド初期化
-                DGV_ReadData.Rows.Clear();
-                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} グリッドを初期化しました。");
-
-                RFIDReadReady(readStartAddress, readDataLength, serverAddress);
+                }
 
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -349,25 +357,31 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り処理を中断します。");
 
-            }
-            finally
-            {
+                #endregion
 
             }
-
         }
 
         #endregion
 
-        #region"CSV出力"
+        #region"CSV出力ボタン"
 
+        /// <summary>
+        /// RFID読取りタブ　CSV出力ボタンのクリックイベント
+        /// </summary>
+        /// <param name="sender">イベント送信元</param>
+        /// <param name="e">イベントハンドラ</param>
         private void btn_OutputCSV_Click(object sender, EventArgs e)
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} CSV出力ボタンがクリックされました。");
 
+            #region"宣言"
+
             string savePath = "";
 
             OpenFileDialog ofd = new OpenFileDialog();
+
+            #endregion
 
             ofd.InitialDirectory = @"C:\";
             ofd.FileName = "V680S_ReadData.csv";
@@ -382,13 +396,14 @@ namespace V680S_Reader_Writer
                 {
                     savePath = ofd.FileName;
 
-                    OutputCSVReady(savePath);
+                    ReadDataOutputCSVReady(savePath);
 
                 }
-
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} CSV出力処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -398,20 +413,21 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} CSV出力処理を中断します。");
 
-            }
-            finally
-            {
+                #endregion
 
             }
-
         }
 
         #endregion
 
-        #region"RFID書込み"
+        #endregion
+
+        #region"RFID書込みタブ"
+
+        #region"RFID書込みボタン"
 
         /// <summary>
-        /// RFID書込みボタンのクリックイベント
+        /// RFID書込みタブ　RFID書込みボタンのクリックイベント
         /// </summary>
         /// <param name="sender">センダー</param>
         /// <param name="e">イベントハンドラ</param>
@@ -419,12 +435,18 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みボタンがクリックされました。");
 
+            #region"宣言"
+
             decimal writeStartAddress = nud_WriteStartAddress.Value;
 
             string serverAddress = txb_WriteIPAddress.Text;
             string st_writeData = txb_WriteData.Text;
             string msbText = "RFIDへデータを書込みます。\r\nよろしいですか？";
             string caption = "確認";
+
+            bool writeResult = false;
+
+            #endregion
 
             MessageBoxButtons msbBtn = MessageBoxButtons.OKCancel;
             MessageBoxIcon msbIcon = MessageBoxIcon.Question;
@@ -436,13 +458,26 @@ namespace V680S_Reader_Writer
 
                 if (dialogResult == DialogResult.OK)
                 {
-                    RFIDWriteReady(writeStartAddress, st_writeData, serverAddress);
+                    writeResult = RFIDWriteReady(writeStartAddress, st_writeData, serverAddress);
 
+                    if (writeResult)
+                    {
+                        // 正常完了
+                        MessageBox.Show("データを書込みました。");
+
+                    }
+                    else
+                    {
+                        // 書込み失敗
+                        MessageBox.Show("データの書込みに失敗しました。");
+
+                    }
                 }
-
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -452,13 +487,349 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
+                #endregion
+
             }
-            finally
+        }
+
+        #endregion
+
+        #endregion
+
+        #region"照合タブ"
+
+        #region"照合開始ボタン"
+
+        /// <summary>
+        /// 照合タブ　照合開始ボタンのクリックイベント
+        /// </summary>
+        /// <param name="sender">イベント送信元</param>
+        /// <param name="e">イベントハンドラ</param>
+        private void btnRFID1Read_Click(object sender, EventArgs e)
+        {
+            #region"宣言"
+
+            decimal collationStartAddress = nud_CollationStartAddress.Value;
+            decimal collationDataLength = nud_CollationDataLength.Value;
+
+            string serverAddress1 = txb_CollationIPAddress1.Text;
+            string serverAddress2 = txb_CollationIPAddress2.Text;
+
+            byte[][] readData1 = null;
+            byte[][] readData2 = null;
+
+            #endregion
+
+            try
             {
+                //入力チェック
+                if (serverAddress1 == "" || serverAddress2 == "")
+                {
+                    MessageBox.Show("IPアドレスが入力されていません。");
+
+                }
+                else
+                {
+                    //RFID1の読取りを実施
+                    readData1 = RFIDReadReady(collationStartAddress, collationDataLength, serverAddress1);
+
+                    if (readData1 != null)
+                    {
+                        MessageBox.Show("1つ目のIDを読取りました。" + "\r\n" + "2つ目のIDを読取ります。");
+
+                        //RFID2の読取りを実施
+                        readData2 = RFIDReadReady(collationStartAddress, collationDataLength, serverAddress2);
+
+                        if (readData2 != null)
+                        {
+                            //読取り結果を比較し、結果を出力する
+                            ShowCollationResult(collationStartAddress, collationDataLength, readData1, readData2);
+
+                            MessageBox.Show("照合が完了しました。");
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("ID2の読取りに失敗しました。");
+
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("ID1の読取りに失敗しました。");
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                #region"例外処理"
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り処理中にエラーが発生しました。");
+
+                // 異常表示
+                errMsg = "エラーが発生しました。管理者へ連絡してください。" + "\r\n \r\n btnRFID1Read_Click() \r\n" + ex.Message;
+
+                Cls_CommonFunctions.ErrorMessageView(errMsg);
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り処理を中断します。");
+
+                #endregion
 
             }
+        }
 
+        #endregion
 
+        #region"CSV出力ボタン"
+
+        /// <summary>
+        /// 照合タブ　CSV出力ボタンのクリックイベント
+        /// </summary>
+        /// <param name="sender">イベント送信元</param>
+        /// <param name="e">イベントハンドラ</param>
+        private void btn_OutputCSV2_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} CSV出力ボタンがクリックされました。");
+
+            #region"宣言"
+
+            string savePath = "";
+
+            OpenFileDialog ofd = new OpenFileDialog();
+
+            #endregion
+
+            ofd.InitialDirectory = @"C:\";
+            ofd.FileName = "V680S_CollationData.csv";
+            ofd.Filter = "csvファイル{*.csv}|*.csv|すべてのファイル{*.*}|*.*";
+            ofd.Title = "保存先を指定してください。";
+            ofd.RestoreDirectory = true;
+            ofd.CheckFileExists = false;
+
+            try
+            {
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    savePath = ofd.FileName;
+
+                    CollationResultOutputCSVReady(savePath);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                #region"例外処理"
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} CSV出力処理中にエラーが発生しました。");
+
+                // 異常表示
+                errMsg = "エラーが発生しました。管理者へ連絡してください。" + "\r\n \r\n btn_OutputCSV_Click() \r\n" + ex.Message;
+
+                Cls_CommonFunctions.ErrorMessageView(errMsg);
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} CSV出力処理を中断します。");
+
+                #endregion
+
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region"転送タブ"
+
+        #region"転送開始ボタン"
+
+        private void btn_Transfar_Click(object sender, EventArgs e)
+        {
+            #region"宣言"
+
+            decimal transfarStartAddress = nud_TransfarStartAddress.Value;
+            decimal transfarDataLength = nud_TransfarDataLength.Value;
+
+            string serverAddress1 = txb_TransfarIPAddress1.Text;
+            string serverAddress2 = txb_TransfarIPAddress2.Text;
+
+            byte[][] readData = null;
+
+            string stWriteData = "";
+            string msbText = "RFID1からRFID2へのデータの転送を開始します。\r\nよろしいですか？";
+            string caption = "確認";
+
+            bool writeResult = false;
+
+            #endregion
+
+            MessageBoxButtons msbBtn = MessageBoxButtons.OKCancel;
+            MessageBoxIcon msbIcon = MessageBoxIcon.Question;
+            MessageBoxDefaultButton msbDefBtn = MessageBoxDefaultButton.Button2;
+
+            try
+            {
+                DialogResult dialogResult = MessageBox.Show(this, msbText, caption, msbBtn, msbIcon, msbDefBtn);
+
+                //ダイアログの応答確認
+                if (dialogResult == DialogResult.OK)
+                {
+                    //入力チェック
+                    if (serverAddress1 == "" || serverAddress2 == "")
+                    {
+                        MessageBox.Show("IPアドレスが入力されていません。");
+
+                    }
+                    else
+                    {
+                        //RFID1の読取りを実施
+                        readData = RFIDReadReady(transfarStartAddress, transfarDataLength, serverAddress1);
+
+                        //読取りデータを確認
+                        if (readData != null && readData.Length >= 1)
+                        {
+                            stWriteData = MakeTransfarText(readData);
+
+                            //書込みデータ確認
+                            if (stWriteData != "")
+                            {
+                                MessageBox.Show("ID1からデータを取得しました。" + "\r\n" + "データの転送を開始します。");
+
+                                writeResult = RFIDWriteReady(transfarStartAddress, stWriteData, serverAddress2);
+
+                                if (writeResult)
+                                {
+                                    // 正常完了
+                                    MessageBox.Show("転送処理が完了しました。");
+
+                                }
+                                else
+                                {
+                                    // 書込み失敗
+                                    MessageBox.Show("ID2への書込みに失敗しました。");
+
+                                }
+                            }
+                            else
+                            {
+                                MessageBox.Show("ID1からデータの取得に失敗しました。");
+
+                            }
+                        }
+                        else
+                        {
+                            // 読取り失敗
+                            MessageBox.Show("ID1の読取りに失敗しました。");
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                #region"例外処理"
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り処理中にエラーが発生しました。");
+
+                // 異常表示
+                errMsg = "エラーが発生しました。管理者へ連絡してください。" + "\r\n \r\n btnRFID1Read_Click() \r\n" + ex.Message;
+
+                Cls_CommonFunctions.ErrorMessageView(errMsg);
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り処理を中断します。");
+
+                #endregion
+
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region"初期化タブ"
+
+        #region"初期化開始ボタン"
+
+        /// <summary>
+        /// 初期化タブ　初期化開始ボタンのクリックイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_RFIDReset_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みボタンがクリックされました。");
+
+            #region"宣言"
+
+            decimal resetStartAddress = nud_ResetStartAddress.Value;
+            decimal resetDataLength = nud_ResetDataLength.Value;
+
+            string serverAddress = txb_ResetIPAddress.Text;
+            string st_resetData = "";
+            string msbText = "RFIDの初期化を実行します。\r\nよろしいですか？";
+            string caption = "確認";
+
+            bool writeResult = false;
+
+            #endregion
+
+            MessageBoxButtons msbBtn = MessageBoxButtons.OKCancel;
+            MessageBoxIcon msbIcon = MessageBoxIcon.Question;
+            MessageBoxDefaultButton msbDefBtn = MessageBoxDefaultButton.Button2;
+
+            try
+            {
+                DialogResult dialogResult = MessageBox.Show(this, msbText, caption, msbBtn, msbIcon, msbDefBtn);
+
+                if (dialogResult == DialogResult.OK)
+                {
+                    //入力チェック
+                    if (serverAddress == "")
+                    {
+                        MessageBox.Show("IPアドレスが入力されていません。");
+
+                    }
+                    else
+                    {
+                        //書込みデータ作成
+                        st_resetData = MakeResetText(resetDataLength);
+
+                        //IDの初期化処理を実行する
+                        writeResult = RFIDWriteReady(resetStartAddress, st_resetData, serverAddress);
+
+                        //実行結果を確認する
+                        if (writeResult)
+                        {
+                            // 正常完了
+                            MessageBox.Show("初期化処理が完了しました。");
+
+                        }
+                        else
+                        {
+                            // 書込み失敗
+                            MessageBox.Show("初期化に失敗しました。");
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                #region"例外処理"
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理中にエラーが発生しました。");
+
+                // 異常表示
+                errMsg = "エラーが発生しました。管理者へ連絡してください。" + "\r\n \r\n btn_RFIDWrite_Click() \r\n" + ex.Message;
+
+                Cls_CommonFunctions.ErrorMessageView(errMsg);
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
+
+                #endregion
+
+            }
         }
 
         #endregion
@@ -489,7 +860,11 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDへの接続情報を更新します。");
 
+            #region"宣言"
+
             bool ret = false;
+
+            #endregion
 
             try
             {
@@ -505,6 +880,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDへの接続情報の更新中にエラーが発生しました。");
 
                 // 異常表示
@@ -514,7 +891,10 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDへの接続情報の更新を中断しました。");
 
+                #endregion
+
             }
+
             return ret;
 
         }
@@ -531,7 +911,11 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDへの接続を開始します。");
 
+            #region"宣言"
+
             bool ret = false;
+
+            #endregion
 
             try
             {
@@ -564,6 +948,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDへの接続中にエラーが発生しました。");
 
                 // 異常表示
@@ -573,7 +959,10 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDへの接続を中断します。");
 
+                #endregion
+
             }
+
             return ret;
 
         }
@@ -599,6 +988,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDとの切断処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -608,8 +999,9 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDとの切断処理を中断します。");
 
-            }
+                #endregion
 
+            }
         }
 
         #endregion
@@ -630,10 +1022,14 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りクエリの作成を開始します。");
 
+            #region"宣言"
+
             byte[] ret = null;
             byte[] data = new byte[12];
 
             int dataLength = 0;
+
+            #endregion
 
             try
             {
@@ -670,6 +1066,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りクエリの作成中にエラーが発生しました。");
 
                 // 異常表示
@@ -679,7 +1077,10 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りクエリの作成を中断します。");
 
+                #endregion
+
             }
+
             return ret;
 
         }
@@ -702,6 +1103,8 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みクエリの作成を開始します。");
 
+            #region"宣言"
+
             byte[] ret = null;
             byte[] data = null;
 
@@ -711,6 +1114,8 @@ namespace V680S_Reader_Writer
             int readAddress2 = 0;
 
             int[] readAddressArr = null;
+
+            #endregion
 
             try
             {
@@ -773,7 +1178,6 @@ namespace V680S_Reader_Writer
                                 data[i + 13] = writeDataArr_[(i + writeCount_ * writeMaxByte) - 1];
 
                             }
-
                         }
                         else
                         {
@@ -781,7 +1185,6 @@ namespace V680S_Reader_Writer
                             data[i + 13] = writeDataArr_[(i + writeCount_ * writeMaxByte)];
 
                         }
-
                     }
                     // 終端アドレスの場合は実行
                     else if (i == writeDataCount - 1 && writingFlag_ == false)
@@ -826,7 +1229,6 @@ namespace V680S_Reader_Writer
                             data[i + 13] = writeDataArr_[(i + writeCount_ * writeMaxByte)];
 
                         }
-
                     }
                     // 中間データなら
                     else
@@ -844,9 +1246,7 @@ namespace V680S_Reader_Writer
                             data[i + 13] = writeDataArr_[(i + writeCount_ * writeMaxByte)];
 
                         }
-
                     }
-
                 }
 
                 ret = data;
@@ -854,6 +1254,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みクエリの作成中にエラーが発生しました。");
 
                 // 異常表示
@@ -862,6 +1264,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みクエリの作成を中断します。");
+
+                #endregion
 
             }
 
@@ -881,10 +1285,14 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} エラーコード取得クエリの作成を開始します。");
 
+            #region"宣言"
+
             byte[] ret = null;
             byte[] data = new byte[12];
 
             int dataLength = 0;
+
+            #endregion
 
             try
             {
@@ -909,9 +1317,12 @@ namespace V680S_Reader_Writer
                 data[11] = wordCount[1];
 
                 ret = data;
+
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} エラーコード取得クエリの作成中にエラーが発生しました。");
 
                 // 異常表示
@@ -921,7 +1332,10 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} エラーコード取得クエリの作成を中断します。");
 
+                #endregion
+
             }
+
             return ret;
 
         }
@@ -940,9 +1354,11 @@ namespace V680S_Reader_Writer
         /// <param name="readStartAddress_">読取り先頭アドレス</param>
         /// <param name="readDataLength_">読取りデータ長</param>
         /// <param name="serverAddress_">読取りRFIDのIPアドレス</param>
-        public void RFIDReadReady(decimal readStartAddress_, decimal readDataLength_, string serverAddress_)
+        public byte[][] RFIDReadReady(decimal readStartAddress_, decimal readDataLength_, string serverAddress_)
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDの読取り処理を開始します。");
+
+            #region"宣言"
 
             string msg = "";
 
@@ -956,11 +1372,18 @@ namespace V680S_Reader_Writer
 
             int[] readInfo = null;
 
-
+            byte[][] ret = null;
             byte[][] readResult = null;
+
+            #endregion
 
             try
             {
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} グリッドを初期化します。");
+                // グリッド初期化
+                DGV_ReadData.Rows.Clear();
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} グリッドを初期化しました。");
+
                 // IPアドレスのフォーマットを確認する
                 correctIpAddress = CheckIPAddress(serverAddress_);
 
@@ -983,7 +1406,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDの読取り処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1007,7 +1430,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDの読取り処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1042,7 +1465,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDの読取り処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1067,7 +1490,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDの読取り処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1090,7 +1513,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDの読取り処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1099,8 +1522,7 @@ namespace V680S_Reader_Writer
                 {
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り結果は正常です。");
 
-                    // 正常完了なら読取りデータを表示
-                    RFIDDataView(readStartAddress_, readDataLength_, readResult);
+                    ret = readResult;
 
                 }
                 else
@@ -1117,6 +1539,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDの読取り処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -1126,6 +1550,8 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDの読取り処理を中断します。");
 
+                #endregion
+
             }
             finally
             {
@@ -1133,6 +1559,8 @@ namespace V680S_Reader_Writer
                 RFIDDisconnect();
 
             }
+
+            return ret;
 
         }
 
@@ -1149,9 +1577,13 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} IPアドレスの入力チェックを開始します。");
 
+            #region"宣言"
+
             bool ret = false;
 
             IPAddress ipAdd = null;
+
+            #endregion
 
             try
             {
@@ -1160,6 +1592,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} IPアドレスの入力チェック中にエラーが発生しました。");
 
                 // 異常表示
@@ -1168,6 +1602,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} IPアドレスの入力チェックを中断します。");
+
+                #endregion
 
             }
 
@@ -1189,9 +1625,13 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータ長を確認します。");
 
+            #region"宣言"
+
             decimal ret = readDataLength__;
 
             int readRange = 0;
+
+            #endregion
 
             try
             {
@@ -1210,6 +1650,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータ長の確認中にエラーが発生しました。");
 
                 // 異常表示
@@ -1218,6 +1660,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータ長の確認を中断します。");
+
+                #endregion
 
             }
 
@@ -1237,9 +1681,13 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り情報の取得を開始します。");
 
+            #region"宣言"
+
             int[] ret = new int[2];
             int readCount = 0;
             int remainder = 0;
+
+            #endregion
 
             try
             {
@@ -1264,6 +1712,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り情報の取得中にエラーが発生しました。");
 
                 // 異常表示
@@ -1272,6 +1722,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取り情報の取得を中断します。");
+
+                #endregion
 
             }
 
@@ -1294,12 +1746,16 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りクエリの取得、送信を開始します。");
 
+            #region"宣言"
+
             byte[] query_Buff = null;
             byte[] recvBuff = null;
 
             int readCount = readInfo_[0];
             int remainder = readInfo_[1];
             decimal readDataLength = nud_ReadDataLength.Value;
+
+            #endregion
 
             try
             {
@@ -1343,7 +1799,6 @@ namespace V680S_Reader_Writer
                             readStartAddress__ = readStartAddress__ + readMaxByte;
 
                         }
-
                     }
 
                     if (query_Buff != null)
@@ -1365,7 +1820,6 @@ namespace V680S_Reader_Writer
                             readResult_[i] = recvBuff;
 
                         }
-
                     }
                     else
                     {
@@ -1373,10 +1827,11 @@ namespace V680S_Reader_Writer
 
                     }
                 }
-
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りクエリの取得、送信中にエラーが発生しました。");
 
                 // 異常表示
@@ -1385,6 +1840,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りクエリの取得、送信を中断します。");
+
+                #endregion
 
             }
 
@@ -1401,9 +1858,11 @@ namespace V680S_Reader_Writer
         /// </summary>
         /// <param name="writeDataCount_">書込みデータのデータ長</param>
         /// <returns>書込み情報 (書込み先頭アドレス、書込み余剰バイト数)</returns>
-        public void RFIDWriteReady(decimal writeStartAddress_, string st_writeData_, string serverAddress_)
+        public bool RFIDWriteReady(decimal writeStartAddress_, string st_writeData_, string serverAddress_)
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} RFIDの書込み処理を開始します。");
+
+            #region"宣言"
 
             string msg = "";
 
@@ -1415,6 +1874,7 @@ namespace V680S_Reader_Writer
             bool correctIpAddress = false;
             bool setComplete = false;
             bool connectComplete = false;
+            bool ret = false;
 
             int readCount = 0;
             int writeCount = 0;
@@ -1429,6 +1889,8 @@ namespace V680S_Reader_Writer
             byte[][] readResult = null;
             byte[][] writeResult = null;
 
+            #endregion
+
             try
             {
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みデータの入力形式を確認します。");
@@ -1437,6 +1899,11 @@ namespace V680S_Reader_Writer
                 if (rdbtn_Binary.Checked == false && rdbtn_ASCII.Checked == true)
                 {
                     inputMode = 1;
+
+                }
+                else
+                {
+                    inputMode = 0;
 
                 }
 
@@ -1476,7 +1943,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1499,7 +1966,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1523,7 +1990,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1589,10 +2056,9 @@ namespace V680S_Reader_Writer
 
                         Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
-                        return;
+                        return ret;
 
                     }
-
                 }
                 else
                 {
@@ -1604,7 +2070,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1630,7 +2096,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1653,7 +2119,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1700,7 +2166,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1723,7 +2189,7 @@ namespace V680S_Reader_Writer
 
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
 
-                    return;
+                    return ret;
 
                 }
 
@@ -1733,8 +2199,7 @@ namespace V680S_Reader_Writer
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み結果は正常です。");
                     Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みに成功しました。");
 
-                    // 正常完了
-                    MessageBox.Show("データを書込みました。");
+                    ret= true;
 
                 }
                 else
@@ -1745,14 +2210,17 @@ namespace V680S_Reader_Writer
                     RFIDError();
 
                 }
-
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 // 異常表示
                 errMsg = "エラーが発生しました。管理者へ連絡してください。" + "\r\n \r\n RFIDWriteReady() \r\n" + ex.Message;
 
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
+
+                #endregion
 
             }
             finally
@@ -1761,6 +2229,8 @@ namespace V680S_Reader_Writer
                 RFIDDisconnect();
 
             }
+
+            return ret;
 
         }
 
@@ -1777,11 +2247,15 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} Binaly形式の書込みデータの入力チェックを開始します。");
 
+            #region"宣言"
+
             bool ret = false;
 
             string st_writeData = st_writeData__;
 
             int st_writeDataLength = 0;
+
+            #endregion
 
             try
             {
@@ -1822,10 +2296,11 @@ namespace V680S_Reader_Writer
                     ret = true;
 
                 }
-
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} Binaly形式の書込みデータの入力チェック中にエラーが発生しました。");
 
                 // 異常表示
@@ -1834,6 +2309,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} Binaly形式の書込みデータの入力チェックを中断します。");
+
+                #endregion
 
             }
 
@@ -1854,10 +2331,14 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み情報の取得を開始します。");
 
+            #region"宣言"
+
             int writeCount = 0;
             int remainder = 1;
 
             int[] ret = new int[2];
+
+            #endregion
 
             try
             {
@@ -1877,6 +2358,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み情報の取得中にエラーが発生しました。");
 
                 // 異常表示
@@ -1885,6 +2368,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み情報の取得を中断します。");
+
+                #endregion
 
             }
 
@@ -1909,6 +2394,8 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みクエリの取得、送信を開始します。");
 
+            #region"宣言"
+
             byte[][] ret = null;
 
             bool writingFlag = false;
@@ -1921,6 +2408,8 @@ namespace V680S_Reader_Writer
             byte[] writeDataArr = null;
             byte[] query_Buff = null;
             byte[] recvBuff = null;
+
+            #endregion
 
             try
             {
@@ -1980,11 +2469,8 @@ namespace V680S_Reader_Writer
                                 writeResult_[currentWriteCount] = recvBuff;
 
                             }
-
                         }
-
                     }
-
                 }
                 else
                 {
@@ -2003,6 +2489,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みクエリの取得、送信中にエラーが発生しました。");
 
                 // 異常表示
@@ -2011,6 +2499,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みクエリの取得、送信を中断します。");
+
+                #endregion
 
             }
 
@@ -2031,10 +2521,14 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みデータの型変換 (ASCII → Byte) を開始します。");
 
+            #region"宣言"
+
             int i_writeData = 0;
 
             byte[] writeDataArr = new byte[st_writeDataArr__.Length];
             byte[] ret = null;
+
+            #endregion
 
             try
             {
@@ -2063,6 +2557,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みデータの型変換 (ASCII → Byte) 中にエラーが発生しました。");
 
                 // 異常表示
@@ -2071,6 +2567,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みデータの型変換 (ASCII → Byte) を中断します。");
+
+                #endregion
 
             }
 
@@ -2091,6 +2589,8 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みデータの型変換 (ASCII → Byte) を開始します。");
 
+            #region"宣言"
+
             int i_writeData = 0;
             int loopCount = 0;
 
@@ -2098,6 +2598,8 @@ namespace V680S_Reader_Writer
 
             byte[] writeDataArr = new byte[st_WriteData.Length];
             byte[] ret = null;
+
+            #endregion
 
             try
             {
@@ -2129,6 +2631,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みデータの型変換 (ASCII → Byte) 中にエラーが発生しました。");
 
                 // 異常表示
@@ -2137,6 +2641,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みデータの型変換 (ASCII → Byte) を中断します。");
+
+                #endregion
 
             }
 
@@ -2149,7 +2655,7 @@ namespace V680S_Reader_Writer
         #region"終端データの確認"
 
         /// <summary>
-        /// 
+        /// 終端データを確認する
         /// </summary>
         /// <param name="i_">ループカウンタ (書込みデータの余剰データ長)</param>
         /// <param name="writeCount__">現在の書込み回数</param>
@@ -2158,13 +2664,16 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みクエリの終端データの確認処理を開始します。");
 
+            #region"宣言"
+
             int currentAddress = 0;
             int readAddress1 = 0;
             int readAddress2 = 0;
 
-
             int[] readAddressArr = new int[2];
             int[] ret = null;
+
+            #endregion
 
             try
             {
@@ -2189,6 +2698,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みクエリの終端データの確認処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -2197,6 +2708,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込みクエリの終端データの確認処理を中断します。");
+
+                #endregion
 
             }
 
@@ -2215,8 +2728,12 @@ namespace V680S_Reader_Writer
         /// <returns>受信したレスポンスのバイト配列</returns>
         private byte[] QuerySend(byte[] query_Buff_)
         {
+            #region"宣言"
+
             byte[] recvBuff = null;
             byte[] ret = null;
+
+            #endregion
 
             try
             {
@@ -2234,6 +2751,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} クエリの送信中にエラーが発生しました。");
 
                 // 異常表示
@@ -2242,6 +2761,8 @@ namespace V680S_Reader_Writer
                 Cls_CommonFunctions.ErrorMessageView(errMsg);
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} クエリの送信を中断します。");
+
+                #endregion
 
             }
 
@@ -2262,7 +2783,11 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 例外コードの取得を開始します。");
 
+            #region"宣言"
+
             bool ret = true;
+
+            #endregion
 
             try
             {
@@ -2283,6 +2808,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 例外コードの取得中にエラーが発生しました。");
 
                 // 異常表示
@@ -2292,11 +2819,14 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 例外コードの取得を中断します。");
 
+                #endregion
+
             }
 
             return ret;
 
         }
+
         #endregion
 
         #region"RFID異常表示"
@@ -2308,11 +2838,15 @@ namespace V680S_Reader_Writer
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} エラーコードの取得を開始します。");
 
+            #region"宣言"
+
             byte[] recvBuff = null;
             byte[] query_Buff_ = null;
             byte[] errorCode = new byte[4];
 
             byte[][] result_ = null;
+
+            #endregion
 
             try
             {
@@ -2348,12 +2882,12 @@ namespace V680S_Reader_Writer
                         Cls_CommonFunctions.ErrorMessageView(msg);
 
                     }
-
                 }
-
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} エラーコードの取得中にエラーが発生しました。");
 
                 // 異常表示
@@ -2363,23 +2897,32 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} エラーコードの取得を中断します。");
 
-            }
+                #endregion
 
+            }
         }
 
         #endregion
 
-        #region"RFID読取りデータ表示"
+        #endregion
+
+        #endregion
+
+        #region"表示制御"
+
+        #region"RFID　読取りデータ　表示"
 
         /// <summary>
         /// RFIDの読取りデータを表示する
         /// </summary>
         /// <param name="readStartAddress_">読取り開始アドレス</param>
         /// <param name="readDataLength_">読取りデータ長</param>
-        /// <param name="readResult_">読取りデータを格納する配列</param>
-        public void RFIDDataView(decimal readStartAddress__, decimal readDataLength__, byte[][] readResult_)
+        /// <param name="readData_">読取りデータを格納する配列</param>
+        public void RFIDDataView(decimal readStartAddress__, decimal readDataLength__, byte[][] readData_)
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータの表示処理を開始します。");
+
+            #region"宣言"
 
             string h_ResultAddress = "";
             string st_readValueBinaly = "";
@@ -2392,6 +2935,8 @@ namespace V680S_Reader_Writer
             int d_ResultAddress = (int)nud_ReadStartAddress.Value;
             int resultAddress1 = 0;
             int resultAddress2 = 0;
+
+            #endregion
 
             try
             {
@@ -2413,7 +2958,7 @@ namespace V680S_Reader_Writer
                     resultAddress1 = (i - 1) / readMaxByte;
 
                     // IDの読出しデータを取得
-                    readValue = readResult_[resultAddress1][resultAddress2];
+                    readValue = readData_[resultAddress1][resultAddress2];
 
                     // 読取りデータを16進数変換
                     st_readValueBinaly = readValue.ToString("X");
@@ -2445,7 +2990,6 @@ namespace V680S_Reader_Writer
                         resultAddress2 = resultAddress2 - readMaxByte;
 
                     }
-
                 }
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータの表示が完了しました。");
@@ -2453,6 +2997,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータの表示処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -2462,31 +3008,148 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータの表示処理を中断します。");
 
-            }
+                #endregion
 
+            }
+        }
+
+        #endregion
+
+        #region"RFID　照合結果　表示"
+
+        /// <summary>
+        /// 2つのRFIDの読取り結果を比較し、データグリッドに表示する
+        /// </summary>
+        /// <param name="readStartAddress_">読取り開始アドレス</param>
+        /// <param name="readDataLength_">読取りデータ長</param>
+        /// <param name="readData1_">RFID1からの読取りデータ</param>
+        /// <param name="readData2_">RFID2からの読取りデータ</param>
+        private void ShowCollationResult(decimal readStartAddress_, decimal readDataLength_, byte[][] readData1_, byte[][] readData2_)
+        {
+            Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータの表示処理を開始します。");
+
+            #region"宣言"
+
+            string h_ResultAddress = "";
+            string st_ReadValueBinaly1 = "";
+            string st_ReadValueBinaly2 = "";
+            string st_CollationResult = "不一致";
+
+            byte readValue1 = 0X00;
+            byte readValue2 = 0X00;
+
+            byte[] b_Ascii = new byte[1];
+
+            int d_ResultAddress = (int)nud_ReadStartAddress.Value;
+            int resultAddress1 = 0;
+            int resultAddress2 = 0;
+
+            #endregion
+
+            try
+            {
+                // 読取りバイト数が奇数ならループ回数を調整
+                if (((int)readStartAddress_ % 2 == 1))
+                {
+                    readDataLength_ = readDataLength_ + 1;
+                }
+
+                resultAddress2 = resultAddress2 + 9;
+
+                // 16進数変換
+                for (int i = 1; i <= (int)readDataLength_; i++)
+                {
+                    // 読取りアドレスを16進数変換
+                    h_ResultAddress = d_ResultAddress.ToString("X");
+
+                    // データの取得位置を計算
+                    resultAddress1 = (i - 1) / readMaxByte;
+
+                    // IDの読出しデータを取得
+                    readValue1 = readData1_[resultAddress1][resultAddress2];
+                    readValue2 = readData2_[resultAddress1][resultAddress2];
+
+                    // 読取りデータを16進数変換
+                    st_ReadValueBinaly1 = readValue1.ToString("X");
+                    st_ReadValueBinaly2 = readValue2.ToString("X");
+
+                    if (st_ReadValueBinaly1 == st_ReadValueBinaly2)
+                    {
+                        st_CollationResult = "一致";
+
+                    }
+
+                    // 初回かつデータ出力の読取り開始アドレスが奇数なら出力しない (アドレス調整のため)
+                    if (!(i == 1 && readStartAddress_ % 2 == 1))
+                    {
+                        // 上記以外は出力する
+
+                        // グリッドに行を追加
+                        dgv_CollationResult.Rows.Add(d_ResultAddress, h_ResultAddress, st_ReadValueBinaly1, st_ReadValueBinaly2, st_CollationResult);
+
+                        // オフセットをずらす
+                        d_ResultAddress = d_ResultAddress + 1;
+
+                    }
+
+                    resultAddress2 = resultAddress2 + 1;
+
+                    // 読取り範囲が250バイト以上か確認する
+                    if (i % readMaxByte == 0)
+                    {
+                        // 250バイトごとに読取り位置をオフセット
+                        // 読取り開始アドレスが偶数なら
+                        resultAddress2 = resultAddress2 - readMaxByte;
+
+                    }
+                }
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータの表示が完了しました。");
+
+            }
+            catch (Exception ex)
+            {
+                #region"例外処理"
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータの表示処理中にエラーが発生しました。");
+
+                // 異常表示
+                errMsg = "エラーが発生しました。管理者へ連絡してください。" + "\r\n \r\n RFIDDataView() \r\n" + ex.Message;
+
+                Cls_CommonFunctions.ErrorMessageView(errMsg);
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータの表示処理を中断します。");
+
+                #endregion
+
+            }
         }
 
         #endregion
 
         #endregion
 
-        #endregion
+        #region"CSV出力制御"
 
-        #region"CSVファイル出力準備"
+        #region"RFID　読取りデータ　CSVファイル出力準備"
 
         /// <summary>
-        /// CSVファイル出力準備
+        /// 読取りデータのCSVファイル出力準備
         /// </summary>
         /// <param name="savePath_">保存先パス</param>
-        private void OutputCSVReady(string savePath_)
+        private void ReadDataOutputCSVReady(string savePath_)
         {
             Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータのCSV出力処理を開始します。");
+
+            #region"宣言"
 
             string[] rowData = null;
 
             string[][] outputData = null;
 
             int dgvRowCount = 0;
+
+            #endregion
 
             try
             {
@@ -2510,13 +3173,12 @@ namespace V680S_Reader_Writer
                     {
                         rowData = new string[3];
 
-                        for (int j = 0; j < 3; j++)
+                        for (int j = 0; j < 2; j++)
                         {
                             // DataGridViewの値を配列に格納
                             rowData[j] = DGV_ReadData.Rows[i - 1].Cells[j].Value.ToString();
 
                         }
-
                     }
 
                     outputData[i] = rowData;
@@ -2529,6 +3191,8 @@ namespace V680S_Reader_Writer
             }
             catch (Exception ex)
             {
+                #region"例外処理"
+
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータのCSV出力処理中にエラーが発生しました。");
 
                 // 異常表示
@@ -2538,7 +3202,207 @@ namespace V680S_Reader_Writer
 
                 Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータのCSV出力処理を中断します。");
 
+                #endregion
+
             }
+        }
+
+
+        #endregion
+
+        #region"RFID　照合結果　CSVファイル出力準備"
+
+        /// <summary>
+        /// 照合結果のCSVファイル出力準備
+        /// </summary>
+        /// <param name="savePath_">保存先パス</param>
+        private void CollationResultOutputCSVReady(string savePath_)
+        {
+            Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータのCSV出力処理を開始します。");
+
+            #region"宣言"
+
+            string[] rowData = null;
+
+            string[][] outputData = null;
+
+            int dgvRowCount = 0;
+
+            #endregion
+
+            try
+            {
+                dgvRowCount = dgv_CollationResult.Rows.Count;
+
+                outputData = new string[dgvRowCount][];
+
+                for (int i = 0; i < dgvRowCount; i++)
+                {
+                    if (i == 0)
+                    {
+                        rowData = new string[5];
+
+                        // ヘッダー情報書込み
+                        rowData[0] = "ReadAddress (Decimal)";
+                        rowData[1] = "ReadAddress (Hex)";
+                        rowData[2] = "ReadData1 (Hex)";
+                        rowData[3] = "ReadData2 (Hex)";
+                        rowData[4] = "CollationResult";
+
+                    }
+                    else
+                    {
+                        rowData = new string[5];
+
+                        for (int j = 0; j < 4; j++)
+                        {
+                            // DataGridViewの値を配列に格納
+                            rowData[j] = dgv_CollationResult.Rows[i - 1].Cells[j].Value.ToString();
+
+                        }
+                    }
+
+                    outputData[i] = rowData;
+
+                }
+
+                // CSVファイル出力
+                Cls_CommonFunctions.OutputCSV(savePath_, outputData);
+
+            }
+            catch (Exception ex)
+            {
+                #region"例外処理"
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータのCSV出力処理中にエラーが発生しました。");
+
+                // 異常表示
+                errMsg = "エラーが発生しました。管理者へ連絡してください。" + "\r\n \r\n OutputCSVReady() \r\n" + ex.Message;
+
+                Cls_CommonFunctions.ErrorMessageView(errMsg);
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 読取りデータのCSV出力処理を中断します。");
+
+                #endregion
+
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region"書込みデータ作成"
+
+        #region"転送用　書込みデータ作成"
+
+        /// <summary>
+        /// 転送用の書込みデータを作成する
+        /// </summary>
+        /// <param name="readData_">RFIDから読みだしたデータ</param>
+        /// <returns>書込みデータ</returns>
+        private string MakeTransfarText(byte[][] readData_)
+        {
+            #region"宣言"
+
+            string transfarTaxt = "";
+            string ret = "";
+
+            #endregion
+
+            try
+            {
+                //読取りデータ確認
+                if (readData_[0] != null && readData_[0].Length >= 10)
+                {
+                    transfarTaxt = readData_[0][9].ToString();
+
+                    //読み取り回数ループ
+                    for (int i = 0; i < readData_.Length; i++)
+                    {
+                        //読取り点数ループ
+                        for (int j = 9; j < readData_[i].Length; j++)
+                        {
+                            //
+                            if (i != 0 || j != 9)
+                            {
+                                transfarTaxt = transfarTaxt + "," + readData_[i][j].ToString();
+
+                            }
+                        }
+                    }
+                }
+
+                ret = transfarTaxt;
+
+            }
+            catch (Exception ex)
+            {
+                #region"例外処理"
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理中にエラーが発生しました。");
+
+                // 異常表示
+                errMsg = "エラーが発生しました。管理者へ連絡してください。" + "\r\n \r\n btn_RFIDWrite_Click() \r\n" + ex.Message;
+
+                Cls_CommonFunctions.ErrorMessageView(errMsg);
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
+
+                #endregion
+
+            }
+
+            return ret;
+
+        }
+        #endregion
+
+        #region"初期化用　書込みデータ作成"
+
+        /// <summary>
+        /// RFID初期化用の書込みデータを作成する
+        /// </summary>
+        /// <param name="resetDataLength_">初期化データ長</param>
+        /// <returns>書込みデータ</returns>
+        private string MakeResetText(decimal resetDataLength_)
+        {
+            #region"宣言"
+
+            string resetTaxt = "00";
+            string ret = "";
+
+            #endregion
+
+            try
+            {
+                for (int i = 1; i < resetDataLength_; i++)
+                {
+                    resetTaxt = resetTaxt + ",00";
+
+                }
+
+                ret = resetTaxt;
+
+            }
+            catch (Exception ex)
+            {
+                #region"例外処理"
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理中にエラーが発生しました。");
+
+                // 異常表示
+                errMsg = "エラーが発生しました。管理者へ連絡してください。" + "\r\n \r\n btn_RFIDWrite_Click() \r\n" + ex.Message;
+
+                Cls_CommonFunctions.ErrorMessageView(errMsg);
+
+                Console.WriteLine($"{System.DateTime.Now.ToString("[yyyy/MM/dd HH:mm:ss]")} 書込み処理を中断します。");
+
+                #endregion
+
+            }
+
+            return ret;
 
         }
 
@@ -2546,6 +3410,7 @@ namespace V680S_Reader_Writer
 
         #endregion
 
-    }
+        #endregion
 
+    }
 }
